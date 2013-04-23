@@ -772,6 +772,9 @@ class API(ModelView):
         For a complete description of all possible search parameters and
         responses, see :ref:`searchformat`.
 
+        To limit the response to the properties of the top-level result
+        and not transfer related objects, add the ``flat`` request parameter.
+
         """
         # try to get search query from the request query parameters
         try:
@@ -793,16 +796,19 @@ class API(ModelView):
             return jsonify_status_code(400,
                                        message='Unable to construct query')
 
-        # create a placeholder for the relations of the returned models
-        relations = frozenset(get_relations(self.model))
-        # do not follow relations that will not be included in the response
-        if self.include_columns is not None:
-            cols = frozenset(self.include_columns)
-            rels = frozenset(self.include_relations)
-            relations &= (cols | rels)
-        elif self.exclude_columns is not None:
-            relations -= frozenset(self.exclude_columns)
-        deep = dict((r, {}) for r in relations)
+        if request.args.get('flat', None) is None:
+            # create a placeholder for the relations of the returned models
+            relations = frozenset(get_relations(self.model))
+            # do not follow relations that will not be included in the response
+            if self.include_columns is not None:
+                cols = frozenset(self.include_columns)
+                rels = frozenset(self.include_relations)
+                relations &= (cols | rels)
+            elif self.exclude_columns is not None:
+                relations -= frozenset(self.exclude_columns)
+            deep = dict((r, {}) for r in relations)
+        else:
+            deep = {}
 
         # for security purposes, don't transmit list as top-level JSON
         if isinstance(result, list):
