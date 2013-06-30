@@ -1024,7 +1024,7 @@ class TestAPI(TestSupport):
         self.manager.create_api(self.Person, url_prefix='/api/v3',
                                 results_per_page=0)
         for i in range(25):
-            d = dict(name=unicode('person%s' % i))
+            d = dict(name=u'person%s' % i)
             response = self.app.post('/api/person', data=dumps(d))
             assert response.status_code == 201
 
@@ -1077,7 +1077,7 @@ class TestAPI(TestSupport):
         """
         self.manager.create_api(self.Person)
         for i in range(25):
-            d = dict(name=unicode('person%s' % i))
+            d = dict(name=u'person%s' % i)
             response = self.app.post('/api/person', data=dumps(d))
             assert response.status_code == 201
         response = self.app.get('/api/person')
