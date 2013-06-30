@@ -233,8 +233,8 @@ class TestFunctionAPI(TestSupportPrefilled):
         # normal GET endpoints.
         response = self.app.get('/api/eval/person?q=%s&callback=baz' % query)
         assert response.status_code == 200
-        assert response.data.startswith('baz(')
-        assert response.data.endswith(')')
+        assert response.data.startswith(b'baz(')
+        assert response.data.endswith(b')')
 
         # Add some more people so the result will be paginated.
         for n in range(20):
@@ -242,8 +242,8 @@ class TestFunctionAPI(TestSupportPrefilled):
         self.session.commit()
         response = self.app.get('/api/person?callback=baz')
         assert response.status_code == 200
-        assert response.data.startswith('baz(')
-        assert response.data.endswith(')')
+        assert response.data.startswith(b'baz(')
+        assert response.data.endswith(b')')
         # Get the dictionary representation of the JSON string inside the
         # 'baz()' part of the JSONP response.
         data = loads(response.data[4:-1])
@@ -1197,13 +1197,13 @@ class TestAPI(TestSupport):
         # test for GET
         response = self.app.get('/api/person/1?callback=baz')
         assert 200 == response.status_code
-        assert response.data.startswith('baz(')
-        assert response.data.endswith(')')
+        assert response.data.startswith(b'baz(')
+        assert response.data.endswith(b')')
         # test for search
         response = self.app.get('/api/person?callback=baz')
         assert 200 == response.status_code
-        assert response.data.startswith('baz(')
-        assert response.data.endswith(')')
+        assert response.data.startswith(b'baz(')
+        assert response.data.endswith(b')')
 
     def test_duplicate_post(self):
         """Tests for making a :http:method:`post` request with data that
