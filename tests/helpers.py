@@ -211,7 +211,8 @@ class TestSupport(DatabaseTestBase):
 
             @hybrid_property
             def is_minor(self):
-                return self.age < 18
+                if self.age:
+                    return self.age < 18
 
             def name_and_age(self):
                 return "%s (aged %d)" % (self.name, self.age)
