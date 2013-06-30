@@ -111,8 +111,8 @@ def catch_processing_exceptions(func):
         try:
             return func(*args, **kw)
         except ProcessingException as exception:
-            current_app.logger.exception(exception.message)
-            status, message = exception.status_code, exception.message
+            current_app.logger.exception(exception.args[0:1] or '')
+            status, message = exception.status_code, exception.args[0:1] or ''
             return jsonify_status_code(status_code=status, message=message)
     return decorator
 
@@ -362,7 +362,7 @@ class FunctionAPI(ModelView):
         try:
             data = json.loads(request.args.get('q')) or {}
         except (TypeError, ValueError, OverflowError) as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             return jsonify_status_code(400, message='Unable to decode data')
         try:
             result = evaluate_functions(self.session, self.model,
@@ -371,11 +371,11 @@ class FunctionAPI(ModelView):
                 return jsonify_status_code(204)
             return jsonpify(result)
         except AttributeError as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             message = 'No such field "%s"' % exception.field
             return jsonify_status_code(400, message=message)
         except OperationalError as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             message = 'No such function "%s"' % exception.function
             return jsonify_status_code(400, message=message)
 
@@ -567,7 +567,7 @@ class API(ModelView):
                 for instance in query:
                     getattr(instance, relationname).append(subinst)
             except AttributeError as exception:
-                current_app.logger.exception(exception.message)
+                current_app.logger.exception(exception.args[0:1] or '')
                 setattr(instance, relationname, subinst)
 
     def _remove_from_relation(self, query, relationname, toremove=None):
@@ -729,11 +729,11 @@ class API(ModelView):
         if hasattr(exception, 'message'):
             # TODO this works only if there is one validation error
             try:
-                left, right = exception.message.rsplit(':', 1)
+                left, right = (exception.args[0:1] or '').rsplit(':', 1)
                 left_bracket = left.rindex('[')
                 right_bracket = right.rindex(']')
             except ValueError as exception:
-                current_app.logger.exception(exception.message)
+                current_app.logger.exception(exception.args[0:1] or '')
                 # could not parse the string; we're not trying too hard here...
                 return None
             msg = right[:right_bracket].strip(' "')
@@ -912,7 +912,7 @@ class API(ModelView):
         try:
             search_params = json.loads(request.args.get('q', '{}'))
         except (TypeError, ValueError, OverflowError) as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             return jsonify_status_code(400, message='Unable to decode data')
 
         for preprocessor in self.preprocessors['GET_MANY']:
@@ -926,7 +926,7 @@ class API(ModelView):
         except MultipleResultsFound:
             return jsonify_status_code(400, message='Multiple results found')
         except Exception as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             return jsonify_status_code(400,
                                        message='Unable to construct query')
 
@@ -1084,7 +1084,7 @@ class API(ModelView):
         try:
             params = json.loads(request.data)
         except (TypeError, ValueError, OverflowError) as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             return jsonify_status_code(400, message='Unable to decode data')
 
         # apply any preprocessors to the POST arguments
@@ -1151,8 +1151,8 @@ class API(ModelView):
         except self.validation_exceptions as exception:
             return self._handle_validation_exception(exception)
         except IntegrityError as exception:
-            current_app.logger.exception(exception.message)
-            return jsonify_status_code(400, message=exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
+            return jsonify_status_code(400, message=exception.args[0:1] or '')
 
     def patch(self, instid, relationname, relationinstid):
         """Updates the instance specified by ``instid`` of the named model, or
@@ -1189,7 +1189,7 @@ class API(ModelView):
             data = json.loads(request.data)
         except (TypeError, ValueError, OverflowError) as exception:
             # this also happens when request.data is empty
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             return jsonify_status_code(400, message='Unable to decode data')
         # Check if the request is to patch many instances of the current model.
         patchmany = instid is None
@@ -1216,7 +1216,7 @@ class API(ModelView):
                 # create a SQLALchemy Query from the query parameter `q`
                 query = create_query(self.session, self.model, search_params)
             except Exception as exception:
-                current_app.logger.exception(exception.message)
+                current_app.logger.exception(exception.args[0:1] or '')
                 return jsonify_status_code(400,
                                            message='Unable to construct query')
         else:
@@ -1244,11 +1244,11 @@ class API(ModelView):
                     num_modified += 1
             self.session.commit()
         except self.validation_exceptions as exception:
-            current_app.logger.exception(exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
             return self._handle_validation_exception(exception)
         except IntegrityError as exception:
-            current_app.logger.exception(exception.message)
-            return jsonify_status_code(400, message=exception.message)
+            current_app.logger.exception(exception.args[0:1] or '')
+            return jsonify_status_code(400, message=exception.args[0:1] or '')
 
         # Perform any necessary postprocessing.
         if patchmany:
