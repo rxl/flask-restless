@@ -125,7 +125,7 @@ def set_headers(response, headers):
     conflict with `headers` will be overwritten.
 
     """
-    for key, value in headers.iteritems():
+    for key, value in headers.items():
         response.headers[key] = value
 
 
@@ -1239,7 +1239,7 @@ class API(ModelView):
             num_modified = 0
             if data:
                 for item in query.all():
-                    for field, value in data.iteritems():
+                    for field, value in data.items():
                         setattr(item, field, value)
                     num_modified += 1
             self.session.commit()

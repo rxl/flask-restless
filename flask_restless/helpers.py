@@ -77,7 +77,7 @@ def unicode_keys_to_strings(dictionary):
         30
 
     """
-    return dict((str(k), v) for k, v in dictionary.iteritems())
+    return dict((str(k), v) for k, v in dictionary.items())
 
 
 def session_query(session, model):
@@ -109,7 +109,7 @@ def get_columns(model):
     """
     columns = {}
     for superclass in model.__mro__:
-        for name, column in superclass.__dict__.iteritems():
+        for name, column in superclass.__dict__.items():
             if isinstance(column, COLUMN_TYPES):
                 columns[name] = column
     return columns
@@ -185,7 +185,7 @@ def assign_attributes(model, **kwargs):
 
     """
     cls = type(model)
-    for field, value in kwargs.iteritems():
+    for field, value in kwargs.items():
         if not hasattr(cls, field):
             msg = '%s has no field named "%r"' % (cls.__name__, field)
             raise TypeError(msg)
@@ -291,7 +291,7 @@ def to_dict(instance, deep=None, exclude=None, include=None,
     except UnmappedInstanceError:
         return instance
     for parent in type(instance).mro():
-        columns += [key for key, value in parent.__dict__.iteritems()
+        columns += [key for key, value in parent.__dict__.items()
                     if isinstance(value, hybrid_property)]
     # filter the columns based on exclude and include values
     if exclude is not None:
@@ -319,7 +319,7 @@ def to_dict(instance, deep=None, exclude=None, include=None,
             result[key] = to_dict(value)
     # recursively call _to_dict on each of the `deep` relations
     deep = deep or {}
-    for relation, rdeep in deep.iteritems():
+    for relation, rdeep in deep.items():
         # Get the related value so we can see if it is None, a list, a query
         # (as specified by a dynamic relationship loader), or an actual
         # instance of a model.
@@ -473,7 +473,7 @@ def get_or_create(session, model, attrs):
     if all(k in attrs for k in pk_names):
         # Determine the sub-dictionary of `attrs` which contains the mappings
         # for the primary keys.
-        pk_values = dict((k, v) for (k, v) in attrs.iteritems()
+        pk_values = dict((k, v) for (k, v) in attrs.items()
                          if k in pk_names)
         # query for an existing row which matches all the specified
         # primary key values.
@@ -502,7 +502,7 @@ def strings_to_dates(model, dictionary):
 
     """
     result = {}
-    for fieldname, value in dictionary.iteritems():
+    for fieldname, value in dictionary.items():
         if is_date_field(model, fieldname) and value is not None:
             if value.strip() == '':
                 result[fieldname] = None
