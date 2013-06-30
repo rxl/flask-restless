@@ -407,7 +407,7 @@ def evaluate_functions(session, model, functions):
         funcobj = getattr(func, funcname)
         try:
             field = getattr(model, fieldname)
-        except AttributeError, exception:
+        except AttributeError as exception:
             exception.field = fieldname
             raise exception
         # Time to store things to be executed. The processed list stores
@@ -419,7 +419,7 @@ def evaluate_functions(session, model, functions):
     # Evaluate all the functions at once and get an iterable of results.
     try:
         evaluated = session.query(*processed).one()
-    except OperationalError, exception:
+    except OperationalError as exception:
         # HACK original error message is of the form:
         #
         #    '(OperationalError) no such function: bogusfuncname'

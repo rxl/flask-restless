@@ -110,7 +110,7 @@ def catch_processing_exceptions(func):
     def decorator(*args, **kw):
         try:
             return func(*args, **kw)
-        except ProcessingException, exception:
+        except ProcessingException as exception:
             current_app.logger.exception(exception.message)
             status, message = exception.status_code, exception.message
             return jsonify_status_code(status_code=status, message=message)
@@ -361,7 +361,7 @@ class FunctionAPI(ModelView):
         """
         try:
             data = json.loads(request.args.get('q')) or {}
-        except (TypeError, ValueError, OverflowError), exception:
+        except (TypeError, ValueError, OverflowError) as exception:
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400, message='Unable to decode data')
         try:
@@ -370,11 +370,11 @@ class FunctionAPI(ModelView):
             if not result:
                 return jsonify_status_code(204)
             return jsonpify(result)
-        except AttributeError, exception:
+        except AttributeError as exception:
             current_app.logger.exception(exception.message)
             message = 'No such field "%s"' % exception.field
             return jsonify_status_code(400, message=message)
-        except OperationalError, exception:
+        except OperationalError as exception:
             current_app.logger.exception(exception.message)
             message = 'No such function "%s"' % exception.function
             return jsonify_status_code(400, message=message)
@@ -566,7 +566,7 @@ class API(ModelView):
             try:
                 for instance in query:
                     getattr(instance, relationname).append(subinst)
-            except AttributeError, exception:
+            except AttributeError as exception:
                 current_app.logger.exception(exception.message)
                 setattr(instance, relationname, subinst)
 
@@ -732,7 +732,7 @@ class API(ModelView):
                 left, right = exception.message.rsplit(':', 1)
                 left_bracket = left.rindex('[')
                 right_bracket = right.rindex(']')
-            except ValueError, exception:
+            except ValueError as exception:
                 current_app.logger.exception(exception.message)
                 # could not parse the string; we're not trying too hard here...
                 return None
@@ -911,7 +911,7 @@ class API(ModelView):
         # try to get search query from the request query parameters
         try:
             search_params = json.loads(request.args.get('q', '{}'))
-        except (TypeError, ValueError, OverflowError), exception:
+        except (TypeError, ValueError, OverflowError) as exception:
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400, message='Unable to decode data')
 
@@ -925,7 +925,7 @@ class API(ModelView):
             return jsonify_status_code(400, message='No result found')
         except MultipleResultsFound:
             return jsonify_status_code(400, message='Multiple results found')
-        except Exception, exception:
+        except Exception as exception:
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400,
                                        message='Unable to construct query')
@@ -1083,7 +1083,7 @@ class API(ModelView):
         # try to read the parameters for the model from the body of the request
         try:
             params = json.loads(request.data)
-        except (TypeError, ValueError, OverflowError), exception:
+        except (TypeError, ValueError, OverflowError) as exception:
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400, message='Unable to decode data')
 
@@ -1148,9 +1148,9 @@ class API(ModelView):
             # Provide that URL in the Location header in the response.
             headers = dict(Location=url)
             return jsonify_status_code(201, headers=headers, **result)
-        except self.validation_exceptions, exception:
+        except self.validation_exceptions as exception:
             return self._handle_validation_exception(exception)
-        except IntegrityError, exception:
+        except IntegrityError as exception:
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400, message=exception.message)
 
@@ -1187,7 +1187,7 @@ class API(ModelView):
         # try to load the fields/values to update from the body of the request
         try:
             data = json.loads(request.data)
-        except (TypeError, ValueError, OverflowError), exception:
+        except (TypeError, ValueError, OverflowError) as exception:
             # this also happens when request.data is empty
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400, message='Unable to decode data')
@@ -1215,7 +1215,7 @@ class API(ModelView):
             try:
                 # create a SQLALchemy Query from the query parameter `q`
                 query = create_query(self.session, self.model, search_params)
-            except Exception, exception:
+            except Exception as exception:
                 current_app.logger.exception(exception.message)
                 return jsonify_status_code(400,
                                            message='Unable to construct query')
@@ -1243,10 +1243,10 @@ class API(ModelView):
                         setattr(item, field, value)
                     num_modified += 1
             self.session.commit()
-        except self.validation_exceptions, exception:
+        except self.validation_exceptions as exception:
             current_app.logger.exception(exception.message)
             return self._handle_validation_exception(exception)
-        except IntegrityError, exception:
+        except IntegrityError as exception:
             current_app.logger.exception(exception.message)
             return jsonify_status_code(400, message=exception.message)
 
