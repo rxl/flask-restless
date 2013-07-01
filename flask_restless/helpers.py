@@ -54,7 +54,7 @@ def partition(l, condition):
     element of the list `l`) and returns either ``True`` or ``False``.
 
     """
-    return filter(condition, l), filter(lambda x: not condition(x), l)
+    return list(filter(condition, l)), list(filter(lambda x: not condition(x), l))
 
 
 def unicode_keys_to_strings(dictionary):
