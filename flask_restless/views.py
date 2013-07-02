@@ -106,11 +106,12 @@ def catch_processing_exceptions(func):
     returns a JSON-ified error response.
 
     """
+    from flask.ext.restless.views import ProcessingException as LocalProcessingException
     @wraps(func)
     def decorator(*args, **kw):
         try:
             return func(*args, **kw)
-        except ProcessingException as exception:
+        except LocalProcessingException as exception:
             current_app.logger.exception(exception.args[0:1] or '')
             status, message = exception.status_code, exception.args[0:1] or ''
             return jsonify_status_code(status_code=status, message=message)
